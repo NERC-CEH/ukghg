@@ -17,6 +17,10 @@
 # RStudio files
 .Rproj.user/
 
+# produced documentation
+man/*.Rd
+*.pdf
+
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
