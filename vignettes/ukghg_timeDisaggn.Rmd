@@ -1,0 +1,62 @@
+---
+title: "Spatio-temporal modelling of anthropogenic and biogenic fluxes of greenhouse gases in the UK"
+author: "Peter Levy"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{use ukghg}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+```{r, eval=FALSE, fig.show='hold'}
+library(rmarkdown)
+system.time(render("ukghg_timeDisaggn.Rmd", output_file = "ukghg_timeDisaggn.html"))
+```
+
+# Introduction
+A key aim of the NERC Greenhouse Gas Emissions and Feedbacks Programme is to compare bottom-up inventory estimates with top-down estimates from atmospheric inverse modelling, to deliver improved GHG inventories and analyses for the UK.  The output required by the inverse modelling groups from "Deliverable D" WP1 is a data set (and/or algorithm) for daily anthropogenic and biogenic emission estimates of CO$_2$, CH$_4$, N$_2$O with a spatial resolution of 1 km$^2$ for the UK.  This provides the prior estimate (spatially- and temporally-resolved) for the inverse modelling, and the bottom-up data set against which to compare top-down model results.  
+
+There are three greenhouse gases to consider (CO$_2$, CH$_4$, N$_2$O), but the following applies equally to all of them.  We distinguish two types of fluxes, which we model separately: anthropogenic ($A$) and biogenic ($B$), and the total flux is the sum of these two components. Both $A$ and $B$ vary in space and time.  Spatially, we represent the fluxes $A$ and $B$ as two-dimensional grids with 1-km resolution and covering the extent of the UK.
+
+# Anthropogenic GHG emissions
+Data on anthropogenic GHG emissions in the UK come from national statistics collated by DECC, AEA and NAEI, and are divided into ten SNAP sectors.  These sectors are: Sexpr{sectorName}.  For each of these sectors, we have a single spatial map of annual emissions from a reference year (denoted $A_\mathrm{ref}$), so for the moment, we consider the relative spatial pattern for each sector to be fixed. 
+The modelling applied here extrapolates and disaggregates emissions to time, $t$, so that we can predict a spatial map of emissions, $A$, for any sector in any hour, of any weekday, on any day, of any year.  Within each sector, the model has the following form:
+
+\begin{align}
+A(t) =& A_\mathrm{ref} \times \alpha_t 
+\\ 
+\text{which can be decomposed to:} \\
+\alpha_t =& 
+  \alpha_\mathrm{year} \, \times \,
+  \alpha_\mathrm{yday} \, \times 
+  \alpha_\mathrm{wday} \, \times \, 
+  \alpha_\mathrm{hour} \\
+\\
+\text{where:} \\
+\\
+\alpha_\mathrm{year} =& \mathrm{f(year)} \\
+\alpha_\mathrm{yday} =& \mathrm{f(yday)} \\
+\alpha_\mathrm{wday} =& \mathrm{f(wday)} \\
+\alpha_\mathrm{hour} =& \mathrm{f(hour)}.
+\end{align}
+
+$\alpha$ terms act as multipliers representing temporal variation on four time scales: inter-annual (year 1990 to 2016), intra-annual day-of-the-year (yday 1 to 365), within-week-day (wday 1 to 7), and hourly (hour 1 to 24).  The sub-annual $\alpha$ functions f(yday), f(wday) and f(hour) are cubic splines.  The sub-annual $\alpha$ functions have an average value of 1, i.e.:
+
+\begin{align}
+\frac{1}{365}\sum_{j=1}^{365}\alpha_\mathrm{yday}(j) =& 1 \\
+\frac{1}{7}  \sum_{d=1}^{7}  \alpha_\mathrm{wday}(d) =& 1 \\
+\frac{1}{24} \sum_{h=1}^{24} \alpha_\mathrm{hour}(h) =& 1
+\end{align}
+
+so they so they decribe the temporal variation around the annual mean.  $\alpha_\mathrm{year}$ accounts for the inter-annual variation in the annual mean, relative to the reference year.  This model is applied to each sector independently, and summed to give the total anthropogenic flux.
+
+\begin{align}
+A(t) = \sum_{i=1}^{n_\mathrm{sector}} A_{i,\mathrm{ref}} \times \alpha_{i,t}
+\end{align}
+
+There are thus 40 parameters in this model: values of $\alpha$ for 10 sectors at four temporal scales.
+
+# Biogenic GHG emissions} 
+There are different models for the different GHGs - this bit still needs describing.
+

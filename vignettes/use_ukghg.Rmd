@@ -1,0 +1,30 @@
+---
+title: "Spatio-temporal modelling of anthropogenic and biogenic fluxes of greenhouse gases in the UK"
+author: "Peter Levy"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{use ukghg}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+## Introduction 
+This TEST document describes the code used to produce spatio-temporal predictions of UK GHG emissions for the period 1990 to 2011.  We have provided an R package which contains the data and code to do this.  Most users will only interact with a single function \texttt{getAflux}, which returns a map, given a date-time stamp as input, optionally returning just the values for a single sector.
+Here, we document all the code for producing this package.
+
+## Packages required
+Firstly, we load the necessary packages. 
+```{r, fig.show='hold'}
+require(knitr)
+require("ukghg")
+
+startDate <- as.POSIXct(strptime("01/06/2006", "%d/%m/%Y"), tz = "UTC")
+endDate   <- as.POSIXct(strptime("02/06/2006", "%d/%m/%Y"), tz = "UTC")
+# create a sequence of dates
+nTimes <- 2
+datect <- seq(startDate, endDate, length = nTimes)
+myFlux <- calcFlux("ch4", datect, res = "100", writeNetCDF = FALSE)
+```
+
+
