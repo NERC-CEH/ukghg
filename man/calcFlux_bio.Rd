@@ -4,10 +4,15 @@
 \alias{calcFlux_bio}
 \title{A calcFlux_bio Function}
 \usage{
-calcFlux_bio(ghgName = c("ch4", "co2", "n2o"), datect = datect,
-  proj = c("OSGB", "LonLat"), res = c("1", "20", "100"),
-  unitType = c("mol", "g"), unitSIprefix = c("kilo", "none", "milli",
-  "micro", "nano", "pico"), timeScales = c(TRUE, TRUE, TRUE, TRUE))
+calcFlux_bio(
+  ghgName = c("ch4", "co2", "n2o"),
+  datect = datect,
+  proj = c("OSGB", "LonLat"),
+  res = c("1", "20", "100"),
+  unitType = c("mol", "g"),
+  unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico"),
+  timeScales = c(TRUE, TRUE, TRUE, TRUE)
+)
 }
 \arguments{
 \item{ghgName}{Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".}

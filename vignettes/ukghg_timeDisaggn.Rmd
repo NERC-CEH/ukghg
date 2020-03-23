@@ -4,7 +4,7 @@ author: "Peter Levy"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{use ukghg}
+  %\VignetteIndexEntry{explain ukghg}
   %\VignetteEngine{knitr::rmarkdown}
   %\usepackage[utf8]{inputenc}
 ---

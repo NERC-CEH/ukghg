@@ -542,8 +542,11 @@ endDate   <- as.POSIXct(strptime("01/12/2014 12:00", "%d/%m/%Y %H:%M"), tz = "UT
 # create a sequence of dates
 nTimes <- 12
 datect <- seq(startDate, endDate, length = nTimes)
-flux_100 <- calcFlux("ch4", datect, proj = "OSGB", res = "100", "mol", "nano", writeNetCDF = FALSE, writeGIF = FALSE, beta_df = beta_df)
-system.time(flux_100 <- calcFlux("ch4", datect, proj = "OSGB", res = "100", "mol", "nano", writeNetCDF = FALSE, writeGIF = FALSE))
+flux_100 <- calcFlux("co2", datect, proj = "OSGB", res = "100", "mol", "micro", timeScales = c(TRUE, TRUE, FALSE, FALSE), writeNetCDF = FALSE)
+plot(datect, flux_100$total, col = "red", type = "b")
+
+flux_100 <- calcFlux("ch4", datect, proj = "OSGB", res = "100", "mol", "nano", writeNetCDF = FALSE)
+system.time(flux_100 <- calcFlux("ch4", datect, proj = "OSGB", res = "100", "mol", "nano", writeNetCDF = FALSE))
 plot(datect, flux_100$total, col = "red", type = "b", ylim = c(0, 7))
 flux_1   <- calcFlux("ch4", datect, proj = "OSGB", res = "1",   "mol", "nano", writeNetCDF = FALSE, writeGIF = FALSE)
 flux_20  <- calcFlux("ch4", datect, proj = "OSGB", res = "20",  "mol", "nano", writeNetCDF = FALSE, writeGIF = FALSE)

@@ -4,8 +4,13 @@
 \alias{calcAlpha}
 \title{Calculate values of alpha, the coefficient of variation in time}
 \usage{
-calcAlpha(ghgName = c("ch4", "co2", "n2o"), datect, sectorList = 1:10,
-  timeScales = c(TRUE, TRUE, TRUE, TRUE), beta_df = beta_df)
+calcAlpha(
+  ghgName = c("ch4", "co2", "n2o"),
+  datect,
+  sectorList = 1:10,
+  timeScales = c(TRUE, TRUE, TRUE, TRUE),
+  beta_df = beta_df
+)
 }
 \arguments{
 \item{ghgName}{Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".}

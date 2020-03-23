@@ -4,13 +4,20 @@
 \alias{calcFlux}
 \title{A high-level function for calculating flux maps}
 \usage{
-calcFlux(ghgName = c("ch4", "co2", "n2o"), datect = datect,
-  proj = c("OSGB", "LonLat"), res = c("1", "20", "100"),
-  unitType = c("mol", "g"), unitSIprefix = c("kilo", "none", "milli",
-  "micro", "nano", "pico"), writeNetCDF = TRUE, sectorList = 1:10,
-  includeBio = TRUE, timeScales = c(TRUE, TRUE, TRUE, TRUE),
-  beta_df = data.frame(sector = 1:10, beta_year = rep(1, 10), beta_yday =
-  rep(1, 10), beta_wday = rep(1, 10), beta_hour = rep(1, 10)))
+calcFlux(
+  ghgName = c("ch4", "co2", "n2o"),
+  datect = datect,
+  proj = c("OSGB", "LonLat"),
+  res = c("1", "20", "100"),
+  unitType = c("mol", "g"),
+  unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico"),
+  writeNetCDF = TRUE,
+  sectorList = 1:10,
+  includeBio = TRUE,
+  timeScales = c(TRUE, TRUE, TRUE, TRUE),
+  beta_df = data.frame(sector = 1:10, beta_year = rep(1, 10), beta_yday = rep(1, 10),
+    beta_wday = rep(1, 10), beta_hour = rep(1, 10))
+)
 }
 \arguments{
 \item{ghgName}{Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".}
