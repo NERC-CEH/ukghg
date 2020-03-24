@@ -11,7 +11,7 @@ calcFlux(
   res = c("1", "20", "100"),
   unitType = c("mol", "g"),
   unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico"),
-  writeNetCDF = TRUE,
+  writeNetCDF = FALSE,
   sectorList = 1:10,
   includeBio = TRUE,
   timeScales = c(TRUE, TRUE, TRUE, TRUE),
@@ -32,7 +32,7 @@ calcFlux(
 
 \item{unitSIprefix}{Any standard SI prefix for the output units, from "kilo" to "pico".}
 
-\item{writeNetCDF}{Write NetCDF output files. Defaults to TRUE.}
+\item{writeNetCDF}{Write NetCDF output files. Defaults to FALSE.}
 
 \item{sectorList}{A vector of sector numbers for which alpha values should be returned, e.g. c(1,3,7). Defaults to all.}
 
@@ -61,6 +61,6 @@ nTimes <- 2
 # create a sequence of timestamps
 datect <- seq(startDate, endDate, length = nTimes)
 # calculate fluxes for these times
-myFlux <- calcFlux("ch4", datect, proj = "OSGB", res = 20, , "mol", "nano")
+myFlux <- calcFlux("ch4", datect, proj = "OSGB", res = "100" , "mol", "nano")
 }
 \keyword{units}

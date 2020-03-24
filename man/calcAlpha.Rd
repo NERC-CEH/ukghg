@@ -9,7 +9,8 @@ calcAlpha(
   datect,
   sectorList = 1:10,
   timeScales = c(TRUE, TRUE, TRUE, TRUE),
-  beta_df = beta_df
+  beta_df = data.frame(sector = 1:10, beta_year = rep(1, 10), beta_yday = rep(1, 10),
+    beta_wday = rep(1, 10), beta_hour = rep(1, 10))
 )
 }
 \arguments{
@@ -33,7 +34,6 @@ endDate   <- as.POSIXct(strptime("02/06/2006", "\%d/\%m/\%Y"), tz = "UTC")
 nTimes <- 2
 datect <- seq(startDate, endDate, length = nTimes)
 alpha_df <- calcAlpha("ch4", datect)
-alpha_df <- calcAlpha("ch4", datect, beta_df=beta_df)
 }
 \seealso{
 \code{\link{calcFlux}} for the higher-level function which calls this.

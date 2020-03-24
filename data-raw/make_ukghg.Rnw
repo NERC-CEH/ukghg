@@ -488,14 +488,14 @@ rf <- writeRaster(s_agg, filename=fname_agg)
 \section{Make ukghg package}
 <<make_package, eval=TRUE, results='asis', echo=TRUE, warning=TRUE, message=TRUE>>=
 rm(list=ls(all=TRUE))
-install.packages("knitr")
-library("devtools")  # alternative is devtools::install_github("klutometis/roxygen")
+#install.packages("knitr")
+library(devtools)  # alternative is devtools::install_github("klutometis/roxygen")
 library(roxygen2)
 library(knitr)
 getwd()
 
 # quick way of testing pkg functions without building package
-source("./ukghg/R/ukghg.R")
+source("./R/ukghg.R")
 
 #load(file = "ukghg.RData", verbose = TRUE)
 #nSectors, sectorName, sectorLongName, alpha_year_byGHG_df, mod.yday, alpha_wday_df, mod.hour
@@ -520,7 +520,9 @@ path <- find.package(pack)
 system(paste(shQuote(file.path(R.home("bin"), "R")),"CMD", "Rd2pdf", shQuote(path)))
 #C:/PROGRA~1/R/R-32~1.4RE/bin/x64/R R CMD Rd2pdf --no-clean N:/0Peter/prop/UKinverseFlux/GHG_TAP/DelD/anthEmis/ukghg
 
-#check()
+system.time(
+  check(manual = FALSE, vignettes = FALSE)
+)
 build()
 build(manual = FALSE, vignettes = FALSE)
 build(binary = TRUE)
@@ -542,7 +544,8 @@ endDate   <- as.POSIXct(strptime("01/12/2014 12:00", "%d/%m/%Y %H:%M"), tz = "UT
 # create a sequence of dates
 nTimes <- 12
 datect <- seq(startDate, endDate, length = nTimes)
-flux_100 <- calcFlux("co2", datect, proj = "OSGB", res = "100", "mol", "micro", timeScales = c(TRUE, TRUE, FALSE, FALSE), writeNetCDF = FALSE)
+flux_100 <- calcFlux("co2", datect, proj = "OSGB", 
+  res = "100", unitType = "mol", unitSIprefix = "micro", timeScales = c(TRUE, TRUE, FALSE, FALSE))
 plot(datect, flux_100$total, col = "red", type = "b")
 
 flux_100 <- calcFlux("ch4", datect, proj = "OSGB", res = "100", "mol", "nano", writeNetCDF = FALSE)

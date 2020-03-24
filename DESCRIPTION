@@ -4,18 +4,21 @@ Version: 0.6
 Authors@R: person("Peter", "Levy", 
                   email = "plevy@ceh.ac.uk", 
                   role = c("aut", "cre", "cph"),
-                  comment=c(ORCID = "https://orcid.org/0000-0002-8505-1901"))
+                  comment=c(ORCID = "0000-0002-8505-1901"))
 Description: Spatio-temporal predictions of UK GHG emissions.
 Depends:
     R (>= 3.2.0),
+    raster
+Imports: 
     mgcv,
-    raster,
     shiny
 Suggests: 
+    ncdf4,
     testthat,
     knitr,
     covr
 License: MIT + file LICENSE
+BugReports: https://github.com/NERC-CEH/ukghg/issues
 LazyData: true
 VignetteBuilder: knitr
 RoxygenNote: 7.0.2

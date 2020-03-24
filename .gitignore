@@ -18,7 +18,10 @@
 .Rproj.user/
 
 # produced documentation
+.Rd
+/*.Rd
 man/*.Rd
+man/*-package.Rd
 *.pdf
 
 # produced vignettes

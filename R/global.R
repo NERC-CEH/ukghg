@@ -1,0 +1,1 @@
+if(getRversion() >= "2.15.1") utils::globalVariables(c('alpha_wday_df', 'alpha_year_byGHG_df', 'mod.hour', 'mod.yday', 'nSectors', 'sectorLongName', 'sectorName'))

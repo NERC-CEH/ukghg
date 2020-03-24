@@ -14,7 +14,14 @@ The only function you're likely to need from \pkg{ukghg} is
 \code{\link{calcFlux}}. Refer to the vignettes for details
 of how to use it - use \code{vignette()}.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item Report bugs at \url{https://github.com/NERC-CEH/ukghg/issues}
+}
+
+}
 \author{
-\strong{Maintainer}: Peter Levy \email{plevy@ceh.ac.uk} (\href{https://orcid.org/https://orcid.org/0000-0002-8505-1901}{ORCID}) [copyright holder]
+\strong{Maintainer}: Peter Levy \email{plevy@ceh.ac.uk} (\href{https://orcid.org/0000-0002-8505-1901}{ORCID}) [copyright holder]
 
 }

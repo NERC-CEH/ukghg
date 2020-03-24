@@ -20,8 +20,8 @@ endDate   <- as.POSIXct(strptime("02/06/2006", "\%d/\%m/\%Y"), tz = "UTC")
 # create a sequence of dates
 nTimes <- 2
 datect <- seq(startDate, endDate, length = nTimes)
-flux_anthro <- calcFlux_anthro("ch4", datect, proj = "OSGB", res = 20, "mol", "nano")
-flux_bio    <- calcFlux_bio   ("ch4", datect, proj = "OSGB", res = 20, "mol", "nano")
+flux_anthro <- calcFlux_anthro("ch4", datect, proj = "OSGB", res = "100", "mol", "nano")
+flux_bio    <- calcFlux_bio   ("ch4", datect, proj = "OSGB", res = "100", "mol", "nano")
 flux_all    <- combineFlux(flux_anthro, flux_bio)
 }
 \seealso{

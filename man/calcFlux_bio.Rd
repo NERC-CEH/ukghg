@@ -38,9 +38,7 @@ endDate   <- as.POSIXct(strptime("02/06/2006", "\%d/\%m/\%Y"), tz = "UTC")
 # create a sequence of dates
 nTimes <- 2
 datect <- seq(startDate, endDate, length = nTimes)
-myFlux <- calcFlux_bio("co2", datect, proj = "OSGB", res = "20", "mol", "micro")
-myFlux <- calcFlux_bio("co2", datect + 6*3600, proj = "OSGB", res = "20", "mol", "micro")
-myFlux <- calcFlux_bio("ch4", datect, "LonLat", "mol", "micro")
+myFlux <- calcFlux_bio("co2", datect, proj = "OSGB", res = "100", "mol", "micro")
 plot(datect, myFlux$total)
 }
 \seealso{

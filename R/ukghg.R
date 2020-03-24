@@ -20,6 +20,7 @@
 #' @param timeScales A vector of logicals for including variation at inter-annual, seasonal, intra-weekly, and diurnal time scales (i.e. the POSIXlt variables year, yday, wday, and hour. Defaults to TRUE for all four.
 #' @param beta_df A data frame of beta coefficients, which act as multipliers on each sector. Defaults to 1 for all, but This allows for parameter estimation by optimisation or MCMC.
 #' @keywords internal alpha
+#' @importFrom mgcv predict.gam
 #' @export
 #' @seealso \code{\link{calcFlux}} for the higher-level function which calls this.
 #' @examples
@@ -29,13 +30,16 @@
 #' nTimes <- 2
 #' datect <- seq(startDate, endDate, length = nTimes)
 #' alpha_df <- calcAlpha("ch4", datect)
-#' alpha_df <- calcAlpha("ch4", datect, beta_df=beta_df)
 
 calcAlpha <- function(ghgName = c("ch4", "co2", "n2o"), 
                 datect, sectorList = 1:10, 
                              # year  yday  wday  hour 
                 timeScales = c(TRUE, TRUE, TRUE, TRUE),
-                beta_df = beta_df){
+                beta_df = data.frame(sector = 1:10, # add default dataframe with beta = 1 for all
+                    beta_year = rep(1, 10), 
+                    beta_yday = rep(1, 10), 
+                    beta_wday = rep(1, 10), 
+                    beta_hour = rep(1, 10))){
   ghgName <- match.arg(ghgName)
   nTimes <- length(datect)
   iTime <- seq(1, length = nTimes)
@@ -51,8 +55,8 @@ calcAlpha <- function(ghgName = c("ch4", "co2", "n2o"),
   df <- merge(df, alpha_year_df, by = c("year"))
   df <- merge(df, alpha_wday_df, by = c("wday", "sector"))
 
-  df$alpha_yday  <- predict.gam(mod.yday, df)
-  df$alpha_hour  <- predict.gam(mod.hour, df)
+  df$alpha_yday  <- mgcv::predict.gam(mod.yday, df)
+  df$alpha_hour  <- mgcv::predict.gam(mod.hour, df)
   # add beta values matching sector indices
   df$beta_year <- beta_df$beta_year[match(df$sector, beta_df$sector)]
   df$beta_yday <- beta_df$beta_yday[match(df$sector, beta_df$sector)]
@@ -149,7 +153,7 @@ unit_conversion <- function(ghgName = c("ch4", "co2", "n2o"),
 #' @param res Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to "1km". Not yet implemented for LonLat.
 #' @param unitType Either molar ("mol") or mass-based ("g").
 #' @param unitSIprefix Any standard SI prefix for the output units, from "kilo" to "pico".
-#' @param writeNetCDF Write NetCDF output files. Defaults to TRUE.
+#' @param writeNetCDF Write NetCDF output files. Defaults to FALSE.
 #' @param sectorList A vector of sector numbers for which alpha values should be returned, e.g. c(1,3,7). Defaults to all.
 #' @param includeBio A logical for whether biogenic fluxes should be calculated as well as anthropogenic sectors 1-10. Defaults to TRUE.
 #' @param timeScales A vector of logicals for including variation at inter-annual, seasonal, intra-weekly, and diurnal time scales (i.e. the POSIXlt variables year, yday, wday, and hour. Defaults to TRUE for all four.
@@ -159,6 +163,7 @@ unit_conversion <- function(ghgName = c("ch4", "co2", "n2o"),
 #' @return ls_ghgByTimeBySector A list of RasterStacks of ghg fluxes where the z dimension corresponds to sector, one per timestep
 #' @return ls_ghgBySectorByTime A list of RasterStacks of ghg fluxes where the z dimension corresponds to timestep, one per sector
 #' @keywords units
+#' @import raster
 #' @export
 #' @examples
 #' startDate <- as.POSIXct(strptime("01/06/2006", "%d/%m/%Y"), tz = "UTC")
@@ -167,7 +172,7 @@ unit_conversion <- function(ghgName = c("ch4", "co2", "n2o"),
 #' # create a sequence of timestamps
 #' datect <- seq(startDate, endDate, length = nTimes)
 #' # calculate fluxes for these times
-#' myFlux <- calcFlux("ch4", datect, proj = "OSGB", res = 20, , "mol", "nano")
+#' myFlux <- calcFlux("ch4", datect, proj = "OSGB", res = "100" , "mol", "nano")
 
 calcFlux <- function(ghgName = c("ch4", "co2", "n2o"), 
                      datect = datect, 
@@ -175,7 +180,7 @@ calcFlux <- function(ghgName = c("ch4", "co2", "n2o"),
                      res = c("1", "20", "100"), 
                      unitType = c("mol", "g"),
                      unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico"),
-                     writeNetCDF = TRUE,
+                     writeNetCDF = FALSE,
                      sectorList = 1:10,
                      includeBio = TRUE,
                                   # year  yday  wday  hour 
@@ -222,8 +227,7 @@ calcFlux <- function(ghgName = c("ch4", "co2", "n2o"),
 #' # create a sequence of dates
 #' nTimes <- 2
 #' datect <- seq(startDate, endDate, length = nTimes)
-#' myFlux <- calcFlux_anthro("ch4", datect, proj = "OSGB", res = 20, "mol", "nano")
-#' myFlux <- calcFlux_anthro("co2", datect, "LonLat", "mol", "micro")
+#' myFlux <- calcFlux_anthro("ch4", datect, proj = "OSGB", res = "100", "mol", "nano")
 
 calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o"), 
                      datect = datect, 
@@ -234,7 +238,11 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o"),
                      sectorList = 1:10,
                                   # year  yday  wday  hour 
                      timeScales = c(TRUE, TRUE, TRUE, TRUE),
-                     beta_df = beta_df){
+                     beta_df = data.frame(sector = 1:10, # add default dataframe with beta = 1 for all
+                         beta_year = rep(1, 10), 
+                         beta_yday = rep(1, 10), 
+                         beta_wday = rep(1, 10), 
+                         beta_hour = rep(1, 10))){
   ghgName <- match.arg(ghgName)
   proj <- match.arg(proj)
   res  <- match.arg(res)
@@ -337,9 +345,7 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o"),
 #' # create a sequence of dates
 #' nTimes <- 2
 #' datect <- seq(startDate, endDate, length = nTimes)
-#' myFlux <- calcFlux_bio("co2", datect, proj = "OSGB", res = "20", "mol", "micro")
-#' myFlux <- calcFlux_bio("co2", datect + 6*3600, proj = "OSGB", res = "20", "mol", "micro")
-#' myFlux <- calcFlux_bio("ch4", datect, "LonLat", "mol", "micro")
+#' myFlux <- calcFlux_bio("co2", datect, proj = "OSGB", res = "100", "mol", "micro")
 #' plot(datect, myFlux$total)
 
 calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o"), 
@@ -457,8 +463,8 @@ calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o"),
 #' # create a sequence of dates
 #' nTimes <- 2
 #' datect <- seq(startDate, endDate, length = nTimes)
-#' flux_anthro <- calcFlux_anthro("ch4", datect, proj = "OSGB", res = 20, "mol", "nano")
-#' flux_bio    <- calcFlux_bio   ("ch4", datect, proj = "OSGB", res = 20, "mol", "nano")
+#' flux_anthro <- calcFlux_anthro("ch4", datect, proj = "OSGB", res = "100", "mol", "nano")
+#' flux_bio    <- calcFlux_bio   ("ch4", datect, proj = "OSGB", res = "100", "mol", "nano")
 #' flux_all    <- combineFlux(flux_anthro, flux_bio)
 
 combineFlux <- function(flux_anthro, flux_bio){
@@ -500,14 +506,16 @@ combineFlux <- function(flux_anthro, flux_bio){
 #' @keywords internal flux
 #' @export
 #' @examples
+#' \dontrun{
 #' startDate <- as.POSIXct(strptime("01/06/2006", "%d/%m/%Y"), tz = "UTC")
 #' endDate   <- as.POSIXct(strptime("02/06/2006", "%d/%m/%Y"), tz = "UTC")
 #' # create a sequence of dates
 #' nTimes <- 2
 #' datect <- seq(startDate, endDate, length = nTimes)
 #' # calculate fluxes for these times
-#' myFlux <- calcFlux("ch4", datect, proj = "OSGB", res = 20, "mol", "nano")
-#' rf          <- writeNetCDF(myFlux)
+#' myFlux <- calcFlux("ch4", datect, proj = "OSGB", res = "100", "mol", "nano")
+#' rf <- writeNetCDF("ch4", datect, proj = "OSGB", res = "100", myFlux)
+#' }
 
 writeNetCDF <- function(ghgName, datect, proj, res, flux){
   fname <- paste("uk_flux_total_", ghgName, "_", proj, "_", res, "km.nc", sep="")  

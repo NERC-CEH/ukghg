@@ -21,14 +21,16 @@ writeNetCDF(ghgName, datect, proj, res, flux)
 This function writes netCDF output files
 }
 \examples{
+\dontrun{
 startDate <- as.POSIXct(strptime("01/06/2006", "\%d/\%m/\%Y"), tz = "UTC")
 endDate   <- as.POSIXct(strptime("02/06/2006", "\%d/\%m/\%Y"), tz = "UTC")
 # create a sequence of dates
 nTimes <- 2
 datect <- seq(startDate, endDate, length = nTimes)
 # calculate fluxes for these times
-myFlux <- calcFlux("ch4", datect, proj = "OSGB", res = 20, "mol", "nano")
-rf          <- writeNetCDF(myFlux)
+myFlux <- calcFlux("ch4", datect, proj = "OSGB", res = "100", "mol", "nano")
+rf <- writeNetCDF("ch4", datect, proj = "OSGB", res = "100", myFlux)
+}
 }
 \keyword{flux}
 \keyword{internal}

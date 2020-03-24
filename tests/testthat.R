@@ -1,4 +1,4 @@
 library(testthat)
-library(template)
+library(ukghg)
 
-test_check("template")
+test_check("ukghg")
