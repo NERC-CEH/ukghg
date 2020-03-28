@@ -14,7 +14,7 @@
 #' Calculate values of alpha, the coefficient of variation in time 
 #'
 #' This function calculates values of alpha, the time coefficient.
-#' @param ghgName Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".
+#' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param datect A vector of timestamps in POSIXct format.
 #' @param sectorList A vector of sector numbers for which alpha values should be returned, e.g. c(1,3,7). Defaults to all.
 #' @param timeScales A vector of logicals for including variation at inter-annual, seasonal, intra-weekly, and diurnal time scales (i.e. the POSIXlt variables year, yday, wday, and hour. Defaults to TRUE for all four.
@@ -31,7 +31,7 @@
 #' datect <- seq(startDate, endDate, length = nTimes)
 #' alpha_df <- calcAlpha("ch4", datect)
 
-calcAlpha <- function(ghgName = c("ch4", "co2", "n2o"), 
+calcAlpha <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"), 
                 datect, sectorList = 1:10, 
                              # year  yday  wday  hour 
                 timeScales = c(TRUE, TRUE, TRUE, TRUE),
@@ -90,9 +90,9 @@ calcAlpha <- function(ghgName = c("ch4", "co2", "n2o"),
 #' A unit_conversion Function
 #'
 #' This function converts from Tg km-2 y-1 to a standard SI unit.
-#' @param ghgName Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".
+#' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param unitType Either molar ("mol") or mass-based ("g").
-#' @param unitSIprefix Any standard SI prefix for the output units, from "kilo" to "pico".
+#' @param unitSIprefix Any standard SI prefix for the output units, from "peta" to "pico".
 #' @keywords internal units
 #' @export
 #' @seealso \code{\link{calcFlux}}, the higher-level function which calls this.
@@ -102,9 +102,9 @@ calcAlpha <- function(ghgName = c("ch4", "co2", "n2o"),
 #' unit_conversion("n2o", "mol", "nano")
 #' unit_conversion("ch4", "g", "nano")
 
-unit_conversion <- function(ghgName = c("ch4", "co2", "n2o"), 
+unit_conversion <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"), 
                            unitType = c("mol", "g"),
-                           unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico")){
+                           unitSIprefix = c("peta", "tera", "giga", "mega", "kilo", "none", "milli", "micro", "nano", "pico")){
   ghgName <- match.arg(ghgName)
   unitType <- match.arg(unitType)
   unitSIprefix <- match.arg(unitSIprefix)
@@ -120,6 +120,10 @@ unit_conversion <- function(ghgName = c("ch4", "co2", "n2o"),
       molWt <- 44
   } else if (ghgName == "n2o") {
       molWt <- 44  
+  } else if (ghgName == "c2h6") {
+      molWt <- 30       # 12*2 + 6
+  } else if (ghgName == "voc") {
+      molWt <- 78.9516  # approximate mean from https://www.convertunits.com/molarmass/VOC
   }
   # ugly, but numerically correct
   if (unitType == "g") {
@@ -127,14 +131,14 @@ unit_conversion <- function(ghgName = c("ch4", "co2", "n2o"),
   }
 
   # unit conversions - this could be outwith the function - stored as data
-  #unitSIprefix <- "nano"
-  SIprefix <- c("kilo", "none", "milli", "micro", "nano", "pico")
-  SI_multiplier <- c(1e-3, 1, 1e3, 1e6, 1e9, 1e12)
+  #unitSIprefix <- "peta"
+  SIprefix <- c("peta", "tera", "giga", "mega", "kilo", "none", "milli", "micro", "nano", "pico")
+  SI_multiplier <- c(1e-15, 1e-12, 1e-9, 1e-6, 1e-3, 1, 1e3, 1e6, 1e9, 1e12) # better with a seq function?
   # match prefix with multiplier
   i <- match(unitSIprefix, SIprefix)
   mult <- SI_multiplier[i]
   
-  # all gases in Tg
+  # all gases in Tg y-1, converted to x m-2 s-1
   value <- Tg_to_g *mult /molWt /km2_to_m2 /secsPerYear
 
   # return name as well
@@ -147,12 +151,12 @@ unit_conversion <- function(ghgName = c("ch4", "co2", "n2o"),
 #' A high-level function for calculating flux maps
 #'
 #' This function calculates greenhouse gas fluxes from the UK, based on a spatio-temporal model and the national GHG inventory data.
-#' @param ghgName Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".
+#' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param datect A vector of timestamps in POSIXct format.
 #' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB.
 #' @param res Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to "1km". Not yet implemented for LonLat.
 #' @param unitType Either molar ("mol") or mass-based ("g").
-#' @param unitSIprefix Any standard SI prefix for the output units, from "kilo" to "pico".
+#' @param unitSIprefix Any standard SI prefix for the output units, from "peta" to "pico".
 #' @param writeNetCDF Write NetCDF output files. Defaults to FALSE.
 #' @param sectorList A vector of sector numbers for which alpha values should be returned, e.g. c(1,3,7). Defaults to all.
 #' @param includeBio A logical for whether biogenic fluxes should be calculated as well as anthropogenic sectors 1-10. Defaults to TRUE.
@@ -174,12 +178,12 @@ unit_conversion <- function(ghgName = c("ch4", "co2", "n2o"),
 #' # calculate fluxes for these times
 #' myFlux <- calcFlux("ch4", datect, proj = "OSGB", res = "100" , "mol", "nano")
 
-calcFlux <- function(ghgName = c("ch4", "co2", "n2o"), 
+calcFlux <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"), 
                      datect = datect, 
                      proj = c("OSGB", "LonLat"), 
                      res = c("1", "20", "100"), 
                      unitType = c("mol", "g"),
-                     unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico"),
+                     unitSIprefix = c("peta", "tera", "giga", "mega", "kilo", "none", "milli", "micro", "nano", "pico"),
                      writeNetCDF = FALSE,
                      sectorList = 1:10,
                      includeBio = TRUE,
@@ -209,12 +213,12 @@ calcFlux <- function(ghgName = c("ch4", "co2", "n2o"),
 #' A calcFlux_anthro Function
 #'
 #' This function calculates anthropogenic greenhouse gas fluxes from the UK, based on a spatio-temporal model and the national GHG inventory data.
-#' @param ghgName Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".
+#' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param datect A vector of timestamps in POSIXct format.
 #' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB, LonLat not implemented yet.
 #' @param res Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to 1. Not yet implemented for LonLat.
 #' @param unitType Either molar ("mol") or mass-based ("g").
-#' @param unitSIprefix Any standard SI prefix for the output units, from "kilo" to "pico".
+#' @param unitSIprefix Any standard SI prefix for the output units, from "peta" to "pico".
 #' @param sectorList A vector of sector numbers for which alpha values should be returned, e.g. c(1,3,7). Defaults to all.
 #' @param timeScales A vector of logicals for including variation at inter-annual, seasonal, intra-weekly, and diurnal time scales (i.e. the POSIXlt variables year, yday, wday, and hour. Defaults to TRUE for all four.
 #' @param beta_df A data frame of beta coefficients, which act as multipliers on each sector. Defaults to 1 for all, but This allows for parameter estimation by optimisation or MCMC.
@@ -229,12 +233,12 @@ calcFlux <- function(ghgName = c("ch4", "co2", "n2o"),
 #' datect <- seq(startDate, endDate, length = nTimes)
 #' myFlux <- calcFlux_anthro("ch4", datect, proj = "OSGB", res = "100", "mol", "nano")
 
-calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o"), 
+calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"), 
                      datect = datect, 
                      proj = c("OSGB", "LonLat"), 
                      res = c("1", "20", "100"),                  
                      unitType = c("mol", "g"),
-                     unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico"), 
+                     unitSIprefix = c("peta", "tera", "giga", "mega", "kilo", "none", "milli", "micro", "nano", "pico"),
                      sectorList = 1:10,
                                   # year  yday  wday  hour 
                      timeScales = c(TRUE, TRUE, TRUE, TRUE),
@@ -274,10 +278,10 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o"),
   r@data@unit <- unitConv$name
   
   # create a stack with nSectors layers
-  s_ghgBySector <- brick(r, values=FALSE, nl=nSectors)
+  s_ghgBySector <- suppressWarnings(brick(r, values=FALSE, nl=nSectors))
   s_ghgBySector  <- setValues(s_ghgBySector, 0)
   # create a stack with nTimes layers
-  s_ghgTotal  <- brick(r, values=FALSE, nl=nTimes) 
+  s_ghgTotal  <- suppressWarnings(brick(r, values=FALSE, nl=nTimes))
   s_ghgTotal  <- setValues(s_ghgTotal, 0)
   # create a list of sector stacks, one for each time
   # this structure is used to sum over sectors at each time
@@ -305,7 +309,7 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o"),
     s_ghgTotal[[iTime]] <- sum(ls_ghgByTimeBySector[[iTime]], na.rm = TRUE)
     # return the sum
     total[iTime] <- cellStats(s_ghgTotal[[iTime]], "sum") * res^2  # so account for cell area in km2
-    print          (cellStats(s_ghgTotal[[iTime]], "sum"))
+    #print          (cellStats(s_ghgTotal[[iTime]], "sum"))
   }
   
   # apply unit conversions
@@ -329,12 +333,12 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o"),
 #' A calcFlux_bio Function
 #'
 #' This function calculates biopogenic greenhouse gas fluxes from the UK, based on a spatio-temporal model and the national GHG inventory data.
-#' @param ghgName Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".
+#' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param datect A vector of timestamps in POSIXct format.
 #' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB, LonLat not implemented yet.
 #' @param res Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to "1km". Not yet implemented for LonLat.
 #' @param unitType Either molar ("mol") or mass-based ("g").
-#' @param unitSIprefix Any standard SI prefix for the output units, from "kilo" to "pico".
+#' @param unitSIprefix Any standard SI prefix for the output units, from "peta" to "pico".
 #' @param timeScales A vector of logicals for including variation at inter-annual, seasonal, intra-weekly, and diurnal time scales (i.e. the POSIXlt variables year, yday, wday, and hour. Defaults to TRUE for all four.
 #' @keywords internal flux
 #' @export
@@ -348,12 +352,12 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o"),
 #' myFlux <- calcFlux_bio("co2", datect, proj = "OSGB", res = "100", "mol", "micro")
 #' plot(datect, myFlux$total)
 
-calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o"), 
+calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"), 
                     datect = datect,
                     proj = c("OSGB", "LonLat"),
                     res = c("1", "20", "100"), 
                     unitType = c("mol", "g"),
-                    unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico"),
+                     unitSIprefix = c("peta", "tera", "giga", "mega", "kilo", "none", "milli", "micro", "nano", "pico"),
                                  # year  yday  wday  hour 
                     timeScales = c(TRUE, TRUE, TRUE, TRUE)){
   ghgName <- match.arg(ghgName)
@@ -378,16 +382,16 @@ calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o"),
   fname <- paste("lai_", proj, "_", res, "km.grd", sep="")
   lai_file <- system.file("extdata", fname, package="ukghg")
   lai <- raster(lai_file)
-  diurnalAmpli_yday  <- brick(lai, values=FALSE, nl=nTimes) 
+  diurnalAmpli_yday  <- brick(lai, values=FALSE, nl=nTimes)
   dailyMean_yday  <- diurnalAmpli_yday
   # CH4 is constant in time just now
   fname <- paste("Fch4_mean_Tgkm2y_", proj, "_", res, "km.grd", sep="")  
   ch4_bio_file <- system.file("extdata", fname, package="ukghg")
   Fch4_mean_Tgkm2y <- raster(ch4_bio_file)
-  flux_ch4  <- brick(Fch4_mean_Tgkm2y, values=FALSE, nl=nTimes) 
+  flux_ch4  <- suppressWarnings(brick(Fch4_mean_Tgkm2y, values=FALSE, nl=nTimes))
   flux_ch4  <- setValues(flux_ch4, getValues(Fch4_mean_Tgkm2y))
   # N2O is just zero from natural land
-  flux_n2o  <- setValues(flux_ch4, 0)
+  flux_zero  <- setValues(flux_ch4, 0)
    
   # lai and LUE and ampli_min could by land class specific
   # need a table for Corine classes
@@ -396,16 +400,17 @@ calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o"),
   ampli_min <- 0 # 1.2 # umol CO2 m-2 s-1
   offset <- 6 # hours
   for (i in 1:nTimes){
-    #i <- 6
+    #i = 1
     # sinusoidal seasonal var in daily mean flux and diurnal amplitude
-    diurnalAmpli_yday[[i]]   <-     lai*LUE*2 * sin(1*pi*(df$yday[i])/365) + ampli_min
-    dailyMean_yday[[i]]  <-   -0.53*lai*LUE   * sin(2*pi*(df$yday[i]-68)/365)
+	# remove spurious warnings about raster brick being empty
+    suppressWarnings(diurnalAmpli_yday[[i]]   <-     lai*LUE*2 * sin(1*pi*(df$yday[i])/365) + ampli_min)
+    suppressWarnings(dailyMean_yday[[i]]  <-   -0.53*lai*LUE   * sin(2*pi*(df$yday[i]-68)/365))
     # gross NPP over summer 6 months = 300 g C m-2 from EB
     # convert to umol CO2 m-2 s-1
     #300 *1e6 /12 / (365*24*60*60/2)
     # gives mean uptake rate of 1.6 umol m-2 s-1
     # thf max amplitude of 3.2 over summer
-    }
+  }
   # sinusoidal diurnal var in flux according to seasonally-variable amplitude, i.e.
   # sinusoidal seasonal plus diurnal var in flux 
   # variation at either time scale can be removed if timeScales 2 or 4 == FALSE
@@ -424,14 +429,14 @@ calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o"),
       s_ghg <- flux_ch4
   } else if (ghgName == "co2") {
       s_ghg <- flux_co2
-  } else if (ghgName == "n2o") {
-      s_ghg <- flux_n2o
+  } else if (ghgName == "n2o" | ghgName == "c2h6" | ghgName == "voc") {
+      s_ghg <- flux_zero
   }  
 
   for (iTime in 1:(nTimes)){
     # return the sum
     total[iTime] <- cellStats(s_ghg[[iTime]], "sum") * res^2  # so account for cell area in km2
-    print( cellStats(s_ghg[[iTime]], "sum") )
+    #print( cellStats(s_ghg[[iTime]], "sum") )
   }
   
   # apply unit conversion
@@ -498,7 +503,7 @@ combineFlux <- function(flux_anthro, flux_bio){
 #' A writeNetCDF Function
 #'
 #' This function writes netCDF output files
-#' @param ghgName Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".
+#' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param datect A vector of timestamps in POSIXct format.
 #' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB, LonLat not implemented yet.
 #' @param res Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to "1km". Not yet implemented for LonLat.

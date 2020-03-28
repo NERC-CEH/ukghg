@@ -7,7 +7,7 @@
 writeNetCDF(ghgName, datect, proj, res, flux)
 }
 \arguments{
-\item{ghgName}{Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".}
+\item{ghgName}{Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".}
 
 \item{datect}{A vector of timestamps in POSIXct format.}
 

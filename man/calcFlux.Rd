@@ -5,12 +5,13 @@
 \title{A high-level function for calculating flux maps}
 \usage{
 calcFlux(
-  ghgName = c("ch4", "co2", "n2o"),
+  ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
   datect = datect,
   proj = c("OSGB", "LonLat"),
   res = c("1", "20", "100"),
   unitType = c("mol", "g"),
-  unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico"),
+  unitSIprefix = c("peta", "tera", "giga", "mega", "kilo", "none", "milli", "micro",
+    "nano", "pico"),
   writeNetCDF = FALSE,
   sectorList = 1:10,
   includeBio = TRUE,
@@ -20,7 +21,7 @@ calcFlux(
 )
 }
 \arguments{
-\item{ghgName}{Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".}
+\item{ghgName}{Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".}
 
 \item{datect}{A vector of timestamps in POSIXct format.}
 
@@ -30,7 +31,7 @@ calcFlux(
 
 \item{unitType}{Either molar ("mol") or mass-based ("g").}
 
-\item{unitSIprefix}{Any standard SI prefix for the output units, from "kilo" to "pico".}
+\item{unitSIprefix}{Any standard SI prefix for the output units, from "peta" to "pico".}
 
 \item{writeNetCDF}{Write NetCDF output files. Defaults to FALSE.}
 

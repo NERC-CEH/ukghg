@@ -5,17 +5,18 @@
 \title{A calcFlux_bio Function}
 \usage{
 calcFlux_bio(
-  ghgName = c("ch4", "co2", "n2o"),
+  ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
   datect = datect,
   proj = c("OSGB", "LonLat"),
   res = c("1", "20", "100"),
   unitType = c("mol", "g"),
-  unitSIprefix = c("kilo", "none", "milli", "micro", "nano", "pico"),
+  unitSIprefix = c("peta", "tera", "giga", "mega", "kilo", "none", "milli", "micro",
+    "nano", "pico"),
   timeScales = c(TRUE, TRUE, TRUE, TRUE)
 )
 }
 \arguments{
-\item{ghgName}{Greenhouse gas: one of "ch4", "co2", or "n2o". Defaults to "ch4".}
+\item{ghgName}{Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".}
 
 \item{datect}{A vector of timestamps in POSIXct format.}
 
@@ -25,7 +26,7 @@ calcFlux_bio(
 
 \item{unitType}{Either molar ("mol") or mass-based ("g").}
 
-\item{unitSIprefix}{Any standard SI prefix for the output units, from "kilo" to "pico".}
+\item{unitSIprefix}{Any standard SI prefix for the output units, from "peta" to "pico".}
 
 \item{timeScales}{A vector of logicals for including variation at inter-annual, seasonal, intra-weekly, and diurnal time scales (i.e. the POSIXlt variables year, yday, wday, and hour. Defaults to TRUE for all four.}
 }

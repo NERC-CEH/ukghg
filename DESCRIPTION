@@ -1,6 +1,6 @@
 Package: ukghg
 Title: Greenhouse Gas Fluxes from the UK
-Version: 0.6
+Version: 0.7.0
 Authors@R: person("Peter", "Levy", 
                   email = "plevy@ceh.ac.uk", 
                   role = c("aut", "cre", "cph"),
@@ -21,4 +21,4 @@ License: MIT + file LICENSE
 BugReports: https://github.com/NERC-CEH/ukghg/issues
 LazyData: true
 VignetteBuilder: knitr
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0

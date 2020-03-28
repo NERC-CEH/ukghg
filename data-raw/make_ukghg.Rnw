@@ -492,10 +492,9 @@ rm(list=ls(all=TRUE))
 library(devtools)  # alternative is devtools::install_github("klutometis/roxygen")
 library(roxygen2)
 library(knitr)
-getwd()
 
 # quick way of testing pkg functions without building package
-source("./R/ukghg.R")
+#source("./R/ukghg.R")
 
 #load(file = "ukghg.RData", verbose = TRUE)
 #nSectors, sectorName, sectorLongName, alpha_year_byGHG_df, mod.yday, alpha_wday_df, mod.hour
@@ -503,6 +502,8 @@ source("./R/ukghg.R")
 #create("ukghg") # if it doesn't already exist
 # Add functions in files to R/ directory 
 
+getwd()
+setwd("..")
 setwd("./ukghg")
 #devtools::use_data(nSectors, sectorName, sectorLongName, alpha_year_byGHG_df, mod.yday, alpha_wday_df, mod.hour, overwrite = TRUE)
 #devtools::use_data(ch4BySector, co2BySector, n2oBySector, internal = TRUE)
@@ -515,23 +516,31 @@ build_vignettes()
 # build the manual
 #Sys.getenv(c("R_TEXI2DVICMD", "R_PAPERSIZE", "RD2PDF_INPUTENC"))
 #Sys.setenv(RD2PDF_INPUTENC = "inputenx ")
-pack <- "ukghg"
-path <- find.package(pack)
+path <- find.package("ukghg")
 system(paste(shQuote(file.path(R.home("bin"), "R")),"CMD", "Rd2pdf", shQuote(path)))
 #C:/PROGRA~1/R/R-32~1.4RE/bin/x64/R R CMD Rd2pdf --no-clean N:/0Peter/prop/UKinverseFlux/GHG_TAP/DelD/anthEmis/ukghg
 
+use_build_ignore("data-raw")
+
+#  check(manual = FALSE, vignettes = FALSE)
 system.time(
-  check(manual = FALSE, vignettes = FALSE)
+  check(manual = FALSE)
 )
 build()
 build(manual = FALSE, vignettes = FALSE)
 build(binary = TRUE)
 
 setwd("..")
-install("ukghg")
-install.packages("./ukghg_0.1.tar.gz", repos = NULL, type="source")
+#install("ukghg")
+# need to install from a tarball for vignettes to be found
+install.packages("./ukghg_0.7.0.tar.gz", repos = NULL, type="source")
 library(ukghg)
-vignette("use_ukghg")
+packageVersion("ukghg")
+runShinyApp()
+vignette(package = "ukghg")
+vignette("use_ukghg", package = "ukghg")
+browseVignettes("ukghg")
+RShowDoc("use_ukghg", package = "ukghg")
 ?ukghg
 ?calcFlux
 ?calcFlux_anthro
@@ -539,14 +548,21 @@ vignette("use_ukghg")
 ?combineFlux
 ?writeNetCDF
 ?writeGIF
-startDate <- as.POSIXct(strptime("01/01/2014 12:00", "%d/%m/%Y %H:%M"), tz = "UTC")
-endDate   <- as.POSIXct(strptime("01/12/2014 12:00", "%d/%m/%Y %H:%M"), tz = "UTC")
+startDate <- as.POSIXct(strptime("01/01/1990 12:00", "%d/%m/%Y %H:%M"), tz = "UTC")
+endDate   <- as.POSIXct(strptime("01/12/1990 12:00", "%d/%m/%Y %H:%M"), tz = "UTC")
 # create a sequence of dates
 nTimes <- 12
 datect <- seq(startDate, endDate, length = nTimes)
-flux_100 <- calcFlux("co2", datect, proj = "OSGB", 
-  res = "100", unitType = "mol", unitSIprefix = "micro", timeScales = c(TRUE, TRUE, FALSE, FALSE))
+flux_100 <- calcFlux("c2h6", datect, proj = "OSGB", 
+  res = "100", unitType = "g", unitSIprefix = "tera", timeScales = c(TRUE, FALSE, FALSE, FALSE))
 plot(datect, flux_100$total, col = "red", type = "b")
+## make the two match - how does res^2 affect the units? 
+## need to multiply if summing up?
+x <- cellStats(flux_100$s_ghgTotal, sum) *km2_to_m2 *secsPerYear *100^2
+mean(x) # * 25 # include GWP to compare with original spreadsheet
+  # all gases in Tg y-1, converted to Tg m-2 s-1
+  value <-  *km2_to_m2 *secsPerYear
+  
 
 flux_100 <- calcFlux("ch4", datect, proj = "OSGB", res = "100", "mol", "nano", writeNetCDF = FALSE)
 system.time(flux_100 <- calcFlux("ch4", datect, proj = "OSGB", res = "100", "mol", "nano", writeNetCDF = FALSE))
