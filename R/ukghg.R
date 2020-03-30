@@ -11,7 +11,7 @@
 #> [1] "_PACKAGE"
 
 ## ----calc_alpha, eval=TRUE, results='asis', echo=TRUE, warning=TRUE, message=TRUE----
-#' Calculate values of alpha, the coefficient of variation in time 
+#' Calculate values of alpha, the coefficient of temporal variation
 #'
 #' This function calculates values of alpha, the time coefficient.
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
@@ -87,7 +87,7 @@ calcAlpha <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
 }
 
 ## ----unit_conversions, eval=TRUE-----------------------------------------
-#' A unit_conversion Function
+#' A unit conversion function
 #'
 #' This function converts from Tg km-2 y-1 to a standard SI unit.
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
@@ -148,7 +148,7 @@ unit_conversion <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
 }
 
 ## ----calc_flux_predictions, eval=TRUE, results='asis', echo=TRUE, warning=TRUE, message=TRUE----
-#' A high-level function for calculating flux maps
+#' A high-level function for calculating a sequence of maps of GHG flux
 #'
 #' This function calculates greenhouse gas fluxes from the UK, based on a spatio-temporal model and the national GHG inventory data.
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
@@ -210,7 +210,7 @@ calcFlux <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
 }
 
 ## ----calc_flux_anthro, eval=TRUE, results='asis', echo=TRUE, warning=TRUE, message=TRUE----
-#' A calcFlux_anthro Function
+#' A low-level function for calculating a sequence of maps of anthropogenic GHG flux
 #'
 #' This function calculates anthropogenic greenhouse gas fluxes from the UK, based on a spatio-temporal model and the national GHG inventory data.
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
@@ -330,7 +330,7 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
 }
 
 ## ----calc_flux_bio-------------------------------------------------------
-#' A calcFlux_bio Function
+#' A low-level function for calculating a sequence of maps of biogenic GHG flux
 #'
 #' This function calculates biopogenic greenhouse gas fluxes from the UK, based on a spatio-temporal model and the national GHG inventory data.
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
@@ -454,7 +454,7 @@ calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
 }
 
 ## ----combine-------------------------------------------------------------
-#' A combineFlux Function
+#' A function to combine map sequences of biogenic and anthropogenic fluxes 
 #'
 #' This function combines biogenic and anthropogenic greenhouse gas fluxes from the UK, based on a spatio-temporal model and the national GHG inventory data.
 #' @param flux_anthro anthropogenic greenhouse gas fluxes
@@ -500,7 +500,7 @@ combineFlux <- function(flux_anthro, flux_bio){
 }
 
 ## ----writeNetCDF---------------------------------------------------------
-#' A writeNetCDF Function
+#' A function to write netCDF output files
 #'
 #' This function writes netCDF output files
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".

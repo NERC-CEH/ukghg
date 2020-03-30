@@ -1,8 +1,8 @@
 ---
 title: " ukghg: spatio-temporal modelling of anthropogenic and biogenic fluxes of greenhouse gases in the UK"
 author: "Peter Levy"
-date: "2020-03-28"
-# output: rmarkdown::html_vignette
+date: "2020-03-30"
+#output: rmarkdown::html_vignette
 output:
   html_document:
     keep_md: yes
@@ -38,7 +38,7 @@ install_github("NERC-CEH/ukghg", auth_token = "cf75f3ae2091f58e6dd664ce9031bee3a
 pkgpath <- find.package("ukghg")
 # and download the large binary files into here from github:
 pb_download(repo = "NERC-CEH/ukghg",
-            tag = "v0.6.0", dest = pkgpath)
+            tag = "v0.7.0", dest = pkgpath)
 ```
 
 ## Using the package
@@ -111,7 +111,7 @@ system.time(
 
 ```
 ##    user  system elapsed 
-##   13.11    2.96   16.82
+##   13.14    3.23   21.09
 ```
 
 We can plot the resulting time series and raster maps in several ways, most simply with base R graphics e.g.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ukghg.R
 \name{combineFlux}
 \alias{combineFlux}
-\title{A combineFlux Function}
+\title{A function to combine map sequences of biogenic and anthropogenic fluxes}
 \usage{
 combineFlux(flux_anthro, flux_bio)
 }

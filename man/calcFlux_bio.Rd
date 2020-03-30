@@ -2,7 +2,7 @@
 % Please edit documentation in R/ukghg.R
 \name{calcFlux_bio}
 \alias{calcFlux_bio}
-\title{A calcFlux_bio Function}
+\title{A low-level function for calculating a sequence of maps of biogenic GHG flux}
 \usage{
 calcFlux_bio(
   ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),

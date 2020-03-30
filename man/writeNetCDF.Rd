@@ -2,7 +2,7 @@
 % Please edit documentation in R/ukghg.R
 \name{writeNetCDF}
 \alias{writeNetCDF}
-\title{A writeNetCDF Function}
+\title{A function to write netCDF output files}
 \usage{
 writeNetCDF(ghgName, datect, proj, res, flux)
 }

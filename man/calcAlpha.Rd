@@ -2,7 +2,7 @@
 % Please edit documentation in R/ukghg.R
 \name{calcAlpha}
 \alias{calcAlpha}
-\title{Calculate values of alpha, the coefficient of variation in time}
+\title{Calculate values of alpha, the coefficient of temporal variation}
 \usage{
 calcAlpha(
   ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),

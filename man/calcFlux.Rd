@@ -2,7 +2,7 @@
 % Please edit documentation in R/ukghg.R
 \name{calcFlux}
 \alias{calcFlux}
-\title{A high-level function for calculating flux maps}
+\title{A high-level function for calculating a sequence of maps of GHG flux}
 \usage{
 calcFlux(
   ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
