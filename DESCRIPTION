@@ -1,6 +1,6 @@
 Package: ukghg
 Title: Greenhouse Gas Fluxes from the UK
-Version: 0.7.1
+Version: 0.7.2
 Authors@R: person("Peter", "Levy", 
                   email = "plevy@ceh.ac.uk", 
                   role = c("aut", "cre", "cph"),

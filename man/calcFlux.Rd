@@ -27,7 +27,7 @@ calcFlux(
 
 \item{proj}{Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB.}
 
-\item{res}{Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to "1km". Not yet implemented for LonLat.}
+\item{res}{Resolution for the gridded data, either 1, 20 or 100 km or 0.01 degrees for LonLat.  Defaults to "1km".}
 
 \item{unitType}{Either molar ("mol") or mass-based ("g").}
 

@@ -89,7 +89,7 @@ calcAlpha <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
 ## ----unit_conversions, eval=TRUE-----------------------------------------
 #' A unit conversion function
 #'
-#' This function converts from Tg km-2 y-1 to a standard SI unit.
+#' This function converts from Tg km-2 y-1 to standard SI units in m-2 s-1.
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param unitType Either molar ("mol") or mass-based ("g").
 #' @param unitSIprefix Any standard SI prefix for the output units, from "peta" to "pico".
@@ -154,7 +154,7 @@ unit_conversion <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param datect A vector of timestamps in POSIXct format.
 #' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB.
-#' @param res Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to "1km". Not yet implemented for LonLat.
+#' @param res Resolution for the gridded data, either 1, 20 or 100 km or 0.01 degrees for LonLat.  Defaults to "1km".
 #' @param unitType Either molar ("mol") or mass-based ("g").
 #' @param unitSIprefix Any standard SI prefix for the output units, from "peta" to "pico".
 #' @param writeNetCDF Write NetCDF output files. Defaults to FALSE.
@@ -196,7 +196,7 @@ calcFlux <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
                         beta_hour = rep(1, 10))){
   ghgName <- match.arg(ghgName)
   proj <- match.arg(proj)
-  res  <- match.arg(res)
+  #res  <- match.arg(res)
   unitType <- match.arg(unitType)
   unitSIprefix <- match.arg(unitSIprefix) 
   
@@ -215,8 +215,8 @@ calcFlux <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
 #' This function calculates anthropogenic greenhouse gas fluxes from the UK, based on a spatio-temporal model and the national GHG inventory data.
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param datect A vector of timestamps in POSIXct format.
-#' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB, LonLat not implemented yet.
-#' @param res Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to 1. Not yet implemented for LonLat.
+#' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".
+#' @param res Resolution for the gridded data, either 1, 20 or 100 km or 0.01 degrees for LonLat. Defaults to 1 km.
 #' @param unitType Either molar ("mol") or mass-based ("g").
 #' @param unitSIprefix Any standard SI prefix for the output units, from "peta" to "pico".
 #' @param sectorList A vector of sector numbers for which alpha values should be returned, e.g. c(1,3,7). Defaults to all.
@@ -249,7 +249,7 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
                          beta_hour = rep(1, 10))){
   ghgName <- match.arg(ghgName)
   proj <- match.arg(proj)
-  res  <- match.arg(res)
+  #res  <- match.arg(res)
   res  <- as.numeric(res)
   unitType <- match.arg(unitType)
   unitSIprefix <- match.arg(unitSIprefix)
@@ -267,7 +267,12 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
   #fname <- paste(path, ghgName, "BySector_", proj, "_", res, "km.grd", sep="")
   #ghgBySector <- stack(fname)
 
-  fname <- paste(ghgName, "BySector_", proj, "_", res, "km.grd", sep="")
+  if (proj == "OSGB"){
+    lengthUnit <- "km"
+  } else if (proj == "LonLat"){
+    lengthUnit <- "deg"
+  }
+  fname <- paste(ghgName, "BySector_", proj, "_", res, lengthUnit, ".grd", sep="")
   ghgfile <- system.file("extdata", fname, package="ukghg")
   ghgBySector <- stack(ghgfile)
   
@@ -276,6 +281,12 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
   r <- ghgBySector[[1]]
   # this works with stack, but is lost with brick
   r@data@unit <- unitConv$name
+  
+  if (proj == "OSGB"){
+    gridcell_area_km2 <- res(r)[1] * res(r)[2] / 1e6 # m2 -> km2
+  } else if (proj == "LonLat"){
+    gridcell_area_km2 <- cellStats(area(r), mean) # area outputs km2
+  }
   
   # create a stack with nSectors layers
   s_ghgBySector <- suppressWarnings(brick(r, values=FALSE, nl=nSectors))
@@ -308,7 +319,7 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
     # return a RasterLayer
     s_ghgTotal[[iTime]] <- sum(ls_ghgByTimeBySector[[iTime]], na.rm = TRUE)
     # return the sum
-    total[iTime] <- cellStats(s_ghgTotal[[iTime]], "sum") * res^2  # so account for cell area in km2
+    total[iTime] <- cellStats(s_ghgTotal[[iTime]], "sum") * gridcell_area_km2  # so account for cell area in km2
     #print          (cellStats(s_ghgTotal[[iTime]], "sum"))
   }
   
@@ -335,8 +346,8 @@ calcFlux_anthro <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
 #' This function calculates biopogenic greenhouse gas fluxes from the UK, based on a spatio-temporal model and the national GHG inventory data.
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param datect A vector of timestamps in POSIXct format.
-#' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB, LonLat not implemented yet.
-#' @param res Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to "1km". Not yet implemented for LonLat.
+#' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB.
+#' @param res Resolution for the gridded data, either 1, 20 or 100 km or 0.01 degrees for LonLat.  Defaults to "1km".
 #' @param unitType Either molar ("mol") or mass-based ("g").
 #' @param unitSIprefix Any standard SI prefix for the output units, from "peta" to "pico".
 #' @param timeScales A vector of logicals for including variation at inter-annual, seasonal, intra-weekly, and diurnal time scales (i.e. the POSIXlt variables year, yday, wday, and hour. Defaults to TRUE for all four.
@@ -362,11 +373,15 @@ calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
                     timeScales = c(TRUE, TRUE, TRUE, TRUE)){
   ghgName <- match.arg(ghgName)
   proj <- match.arg(proj)
-  res  <- match.arg(res)
+  #res  <- match.arg(res)
   res  <- as.numeric(res)
   unitType <- match.arg(unitType)
   unitSIprefix <- match.arg(unitSIprefix)
-  
+  if (proj == "OSGB"){
+    lengthUnit <- "km"
+  } else if (proj == "LonLat"){
+    lengthUnit <- "deg"
+  }
   nTimes <- length(datect)
   iTime <- seq(1, length = nTimes)
   df <- data.frame(iTime, datect)
@@ -379,13 +394,13 @@ calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
   
   # create stacks with nTimes layers
   # amplitude of diurnal cycle in NEE CO2
-  fname <- paste("lai_", proj, "_", res, "km.grd", sep="")
+  fname <- paste("lai_", proj, "_", res, lengthUnit, ".grd", sep="")
   lai_file <- system.file("extdata", fname, package="ukghg")
   lai <- raster(lai_file)
   diurnalAmpli_yday  <- brick(lai, values=FALSE, nl=nTimes)
   dailyMean_yday  <- diurnalAmpli_yday
   # CH4 is constant in time just now
-  fname <- paste("Fch4_mean_Tgkm2y_", proj, "_", res, "km.grd", sep="")  
+  fname <- paste("Fch4_mean_Tgkm2y_", proj, "_", res, lengthUnit, ".grd", sep="")  
   ch4_bio_file <- system.file("extdata", fname, package="ukghg")
   Fch4_mean_Tgkm2y <- raster(ch4_bio_file)
   flux_ch4  <- suppressWarnings(brick(Fch4_mean_Tgkm2y, values=FALSE, nl=nTimes))
@@ -432,10 +447,16 @@ calcFlux_bio <- function(ghgName = c("ch4", "co2", "n2o", "c2h6", "voc"),
   } else if (ghgName == "n2o" | ghgName == "c2h6" | ghgName == "voc") {
       s_ghg <- flux_zero
   }  
-
+  
+  if (proj == "OSGB"){
+    gridcell_area_km2 <- res(s_ghg[[1]])[1] * res(s_ghg[[1]])[2] / 1e6 # m2 -> km2
+  } else if (proj == "LonLat"){
+    gridcell_area_km2 <- cellStats(area(s_ghg[[1]]), mean) # area outputs km2
+  }
+  
   for (iTime in 1:(nTimes)){
     # return the sum
-    total[iTime] <- cellStats(s_ghg[[iTime]], "sum") * res^2  # so account for cell area in km2
+    total[iTime] <- cellStats(s_ghg[[iTime]], "sum") * gridcell_area_km2  # so account for cell area in km2
     #print( cellStats(s_ghg[[iTime]], "sum") )
   }
   
@@ -505,8 +526,8 @@ combineFlux <- function(flux_anthro, flux_bio){
 #' This function writes netCDF output files
 #' @param ghgName Greenhouse gas: one of "ch4", "co2", "n2o", "c2h6" or "voc". Defaults to "ch4".
 #' @param datect A vector of timestamps in POSIXct format.
-#' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB, LonLat not implemented yet.
-#' @param res Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to "1km". Not yet implemented for LonLat.
+#' @param proj Geographic projection for the gridded data, either "OSGB" or "LonLat".
+#' @param res Resolution for the gridded data, either 1, 20 or 100 km or 0.01 degrees for LonLat.  Defaults to "1km".
 #' @param flux a ukghg flux object
 #' @keywords internal flux
 #' @export

@@ -11,9 +11,9 @@ writeNetCDF(ghgName, datect, proj, res, flux)
 
 \item{datect}{A vector of timestamps in POSIXct format.}
 
-\item{proj}{Geographic projection for the gridded data, either "OSGB" or "LonLat".  Defaults to OSGB, LonLat not implemented yet.}
+\item{proj}{Geographic projection for the gridded data, either "OSGB" or "LonLat".}
 
-\item{res}{Resolution for the gridded data, either 1, 20 or 100 km.  Defaults to "1km". Not yet implemented for LonLat.}
+\item{res}{Resolution for the gridded data, either 1, 20 or 100 km or 0.01 degrees for LonLat.  Defaults to "1km".}
 
 \item{flux}{a ukghg flux object}
 }

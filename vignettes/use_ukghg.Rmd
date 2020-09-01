@@ -40,7 +40,7 @@ install_github("NERC-CEH/ukghg", auth_token = "cf75f3ae2091f58e6dd664ce9031bee3a
 pkgpath <- find.package("ukghg")
 # and download the large binary files into here from github:
 pb_download(repo = "NERC-CEH/ukghg",
-            tag = "v0.7.0", dest = pkgpath)
+            tag = "v0.7.2", dest = pkgpath)
 ```
 
 ## Using the package
@@ -92,6 +92,20 @@ datect <- seq(startDate, endDate, length = nTimes)
 
 system.time(
   flux_c2h6 <- calcFlux("c2h6", datect, res = "100", unitType = "g", unitSIprefix = "pico",
+    timeScales = c(TRUE, TRUE, FALSE, FALSE))
+)
+```
+
+To predict quarterly ethane emission over 2016 on a 0.01 deg Lon-Lat grid in pg C$_2$H$_6$ m^-2^ s^-1^, ignoring day-of-the-week and diurnal variation, we would use:
+```{r}
+# create a sequence of quarterly time points over one year
+startDate <- as.POSIXct(strptime("01/01/2016", "%d/%m/%Y"), tz = "UTC")
+endDate   <- as.POSIXct(strptime("01/10/2016", "%d/%m/%Y"), tz = "UTC")
+nTimes <- 4  # number of time points
+datect <- seq(startDate, endDate, length = nTimes)
+
+system.time(
+  flux_c2h6 <- calcFlux("c2h6", datect, proj = "LonLat", res = "0.01", unitType = "g", unitSIprefix = "pico",
     timeScales = c(TRUE, TRUE, FALSE, FALSE))
 )
 ```
