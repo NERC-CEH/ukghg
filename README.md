@@ -31,13 +31,13 @@ Instead we use the `piggyback` package to retrieve the large files.  This is ach
 library(devtools)  # for install_github
 library(piggyback) # for binary files from github
 
-# install ukghg from github using an OAuth token
+# install ukghg from github
 install_github("NERC-CEH/ukghg")
 # find where this has been installed:
 pkgpath <- find.package("ukghg")
 # and download the large binary files into here from github:
 pb_download(repo = "NERC-CEH/ukghg",
-            tag = "v0.7.0", dest = pkgpath)
+            tag = "v0.7.2", dest = pkgpath) # update version no. as necessary
 ```
 
 ## Using the package
