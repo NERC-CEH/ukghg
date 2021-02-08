@@ -30,10 +30,9 @@ Instead we use the `piggyback` package to retrieve the large files.  This is ach
 # install.packages(c("devtools", "piggyback"))
 library(devtools)  # for install_github
 library(piggyback) # for binary files from github
-Sys.setenv(GITHUB_TOKEN="cf75f3ae2091f58e6dd664ce9031bee3aa98f0f8")
 
 # install ukghg from github using an OAuth token
-install_github("NERC-CEH/ukghg", auth_token = "cf75f3ae2091f58e6dd664ce9031bee3aa98f0f8")
+install_github("NERC-CEH/ukghg")
 # find where this has been installed:
 pkgpath <- find.package("ukghg")
 # and download the large binary files into here from github:
