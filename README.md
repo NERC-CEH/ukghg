@@ -12,6 +12,9 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/NERC-CEH/ukghg/workflows/R-CMD-check/badge.svg)](https://github.com/NERC-CEH/ukghg/actions)
+<!-- badges: end -->
 
 
 ## Introduction 
