@@ -15,11 +15,11 @@ Imports:
 Suggests: 
     ncdf4,
     testthat,
-    knitr,
+    knitr, rmarkdown,
     covr
 License: MIT + file LICENSE
 BugReports: https://github.com/NERC-CEH/ukghg/issues
 LazyData: true
-VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+VignetteBuilder: knitr, rmarkdown
+RoxygenNote: 7.1.2
 ByteCompile: true

@@ -4,7 +4,7 @@ author: "Peter Levy"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{explain ukghg}
+  %\VignetteIndexEntry{Spatio-temporal modelling of anthropogenic and biogenic fluxes of greenhouse gases in the UK}
   %\VignetteEngine{knitr::rmarkdown}
   %\usepackage[utf8]{inputenc}
 ---
